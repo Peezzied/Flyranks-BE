@@ -1,178 +1,86 @@
 # Task API
 
-A simple FastAPI CRUD API for managing tasks.
+A simple FastAPI CRUD API for managing tasks. This API allows you to create, read, update, and delete tasks with support for filtering by search terms and completion status.
 
-## Getting started
+## Quick Start
 
-Install dependencies:
-
-```bash
-pip install -r requirements.txt 
-```
-
-Start the server:
+Install dependencies and run the server with one command:
 
 ```bash
-fastapi dev
+pip install -r requirements.txt && fastapi dev
 ```
 
-The API runs at `http://localhost:8000`.
+The API will be available at `http://localhost:8000` with interactive API documentation at `http://localhost:8000/docs`.
 
-### Documentation
-OpenAPI docs are at [http://localhost:8000/docs](http://localhost:8000/docs).
-![alt text](image.png)
+## OpenAPI Documentation
 
-## Endpoints
+![OpenAPI Screenshot](image.png)
 
-### `GET /`
+## API Endpoints
 
-Returns metadata about the API.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/` | API information and available endpoints |
+| `GET` | `/health` | Health check |
+| `GET` | `/tasks` | List all tasks (supports `search` and `done` query parameters) |
+| `GET` | `/tasks/{id}` | Get a specific task by ID |
+| `POST` | `/tasks` | Create a new task |
+| `PUT` | `/tasks/{id}` | Update a task (partial updates supported) |
+| `DELETE` | `/tasks/{id}` | Delete a task |
 
-**Response**
+## Example curl Output
 
-```json
-{
-  "name": "Task API",
-  "version": "1.0",
-  "endpoints": ["/tasks"]
-}
+```
+HTTP/1.1 200 OK
+date: Sun, 26 Jul 2026 14:48:40 GMT
+server: uvicorn
+content-length: 135
+content-type: application/json
+
+[{"id":1,"title":"Buy groceries","done":false},{"id":2,"title":"Walk the dog","done":true},{"id":3,"title":"Read a book","done":false}]
 ```
 
-**Example**
+## Usage Examples
 
+### Get all tasks
 ```bash
-curl http://localhost:8000/
+curl http://localhost:8000/tasks
 ```
 
-### `GET /health`
-
-Health check endpoint.
-
-**Response**
-
-```json
-{
-  "status": "ok"
-}
-```
-
-**Example**
-
+### Filter by completion status
 ```bash
-curl http://localhost:8000/health
+curl "http://localhost:8000/tasks?done=true"
 ```
 
-### `GET /tasks/:id`
-
-Returns a single task by id.
-
-**Response (200)**
-
-```json
-{ "id": 1, "title": "Buy groceries", "done": false }
+### Search tasks
+```bash
+curl "http://localhost:8000/tasks?search=book"
 ```
 
-**Response (404)**
-
-```json
-{ "error": "Task 99 not found" }
-```
-
-**Example**
-
+### Get a specific task
 ```bash
 curl http://localhost:8000/tasks/1
-curl http://localhost:8000/tasks/99
 ```
 
-### `POST /tasks`
-
-Creates a new task.
-
-**Request body**
-
-```json
-{ "title": "Buy milk" }
-```
-
-**Response (201)**
-
-```json
-{ "id": 4, "title": "Buy milk", "done": false }
-```
-
-**Response (400)**
-
-```json
-{ "error": "title is required and cannot be empty" }
-```
-
-**Example**
-
+### Create a new task
 ```bash
 curl -X POST http://localhost:8000/tasks \
   -H "Content-Type: application/json" \
   -d '{"title": "Buy milk"}'
 ```
 
-### `PUT /tasks/:id`
-
-Updates a task's `title` and/or `done`. Send one or both fields; omitted fields stay unchanged.
-
-**Request body**
-
-```json
-{ "title": "Buy oat milk", "done": true }
-```
-
-**Response (200)**
-
-```json
-{ "id": 1, "title": "Buy oat milk", "done": true }
-```
-
-**Response (400)**
-
-```json
-{ "error": "request body must include title and/or done" }
-```
-
-**Response (404)**
-
-```json
-{ "error": "Task 99 not found" }
-```
-
-**Example**
-
+### Update a task
 ```bash
 curl -X PUT http://localhost:8000/tasks/1 \
   -H "Content-Type: application/json" \
   -d '{"done": true}'
 ```
 
-### `DELETE /tasks/:id`
-
-Deletes a task.
-
-**Response (204)**
-
-Empty body — success, nothing to return.
-
-**Response (404)**
-
-```json
-{ "error": "Task 99 not found" }
-```
-
-**Example**
-
+### Delete a task
 ```bash
 curl -X DELETE http://localhost:8000/tasks/1
 ```
 
 ---
-
-*<p align="center">This is a Flyranks internship assignment for backend AI engineering.</p>*
-
-
+<br/>
+<center><b>Note:</b> This is a Flyranks assignment for Backend AI Engineering.</center>
