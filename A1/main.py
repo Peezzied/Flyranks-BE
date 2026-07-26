@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException, status
-from pydantic import BaseModel, model_validator, ValidationError
+from fastapi import FastAPI, status
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 import json
 
 TASKS = [
@@ -31,9 +32,9 @@ async def health():
 async def create_task(item: Item):
     title = item.title
     if title is None or not isinstance(title, str) or not title.strip():
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="title is required and cannot be empty",
+            content={"error": "title is required and cannot be empty"},
         )
 
     title_str = title.strip()
@@ -58,8 +59,9 @@ async def tasks(id: int):
     task = next((t for t in TASKS if t["id"] == id), None)
 
     if task is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Task {id} not found"
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"error": f"Task {id} not found"},
         )
 
     return task
@@ -70,28 +72,30 @@ async def put_task(id: int, item: Item):
     task = next((t for t in TASKS if t["id"] == id), None)
 
     if task is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Task {id} not found"
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND, content=f"Task {id} not found"
         )
 
     if item.title is None and item.done is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Empty/Invalid body"
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content="request body must include title and/or done",
         )
 
     task.update(item.model_dump(exclude_unset=True))
 
     return {"id": id, **task}
 
+
 @app.delete("/tasks/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_task(id: int):
     task = next((t for t in TASKS if t["id"] == id), None)
 
     if task is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Task {id} not found"
+        raise JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND, content=f"Task {id} not found"
         )
 
     TASKS.remove(task)
-    
-    return None 
+
+    return None
