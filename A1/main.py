@@ -2,6 +2,7 @@ from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import json
+import storage
 
 TASKS = [
     {"id": 1, "title": "Buy groceries", "done": False},
@@ -107,3 +108,7 @@ async def delete_task(id: int):
     TASKS.remove(task)
 
     return None
+
+if __name__ == "__main__":
+    storage.create_db_and_tables()
+    storage.populate_db()
