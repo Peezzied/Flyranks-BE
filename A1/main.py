@@ -36,15 +36,7 @@ async def create_task(item: Item):
 
 @app.get("/tasks")
 async def tasks(search: str | None = None, done: bool | None = None):
-    filtered_tasks = storage.get_tasks()
-
-    if search is not None:
-        filtered_tasks = [
-            i for i in filtered_tasks if search.lower() in i.title.lower()
-        ]
-
-    if done is not None:
-        filtered_tasks = [i for i in filtered_tasks if i.done == done]
+    filtered_tasks = storage.get_tasks(search, done)
 
     return filtered_tasks
 

@@ -1,4 +1,4 @@
-from sqlmodel import Field, SQLModel, create_engine, Session, select
+from sqlmodel import Field, SQLModel, create_engine, Session, select, col
 from model import Item as TaskItem
 
 sqlite_url = f"sqlite:///tasks.db"
@@ -63,9 +63,16 @@ def create_task(title: str):
         
         return task
 
-def get_tasks():
+def get_tasks(search: str | None = None, done: bool | None = None):
     with Session(engine) as session:
-        return session.exec(select(Tasks)).all()
+        statement = select(Tasks)
+        if search:
+            statement = statement.where(col(Tasks.title).ilike(f"%{search}%"))
+        
+        if done is not None:
+            statement = statement.where(Tasks.done == done)
+        
+        return session.exec(statement).all()
     
 def get_task(id: int):
     with Session(engine) as session:    
