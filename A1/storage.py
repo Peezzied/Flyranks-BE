@@ -5,7 +5,7 @@ sqlite_url = f"sqlite:///tasks.db"
 class Tasks(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     title: str
-    done: bool
+    done: bool = False
 
 engine = create_engine(sqlite_url, echo=True)
 
@@ -23,7 +23,16 @@ def populate_db():
         for task in TASKS:
             session.add(Tasks(title=task["title"], done=task["done"]))
         session.commit()
+
+def create_task(title: str):
+    with Session(engine) as session:
+        task = Tasks(title=title)
+        session.add(task)
+        session.commit()
+        session.refresh(task)
         
+        return task
+
 def get_tasks():
     with Session(engine) as session:
         return session.exec(select(Tasks)).all()

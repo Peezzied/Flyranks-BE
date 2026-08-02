@@ -37,17 +37,7 @@ async def create_task(item: Item):
             status_code=status.HTTP_400_BAD_REQUEST,
             content={"error": "title is required and cannot be empty"},
         )
-
-    title_str = title.strip()
-
-    new_id = (
-        1 if len(TASKS) == 0 else max(t["id"] for t in TASKS) + 1
-    )  # auto increment id
-    task = {"id": new_id, "title": title_str, "done": False}
-
-    TASKS.append(task)
-
-    return task
+    return storage.create_task(title.strip())
 
 
 @app.get("/tasks")
