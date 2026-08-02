@@ -2,15 +2,44 @@
 
 A simple FastAPI CRUD API for managing tasks. This API allows you to create, read, update, and delete tasks with support for filtering by search terms and completion status.
 
+## Why SQLite?
+
+This project uses SQLite because it is:
+
+- a single database file
+- zero setup required
+- easy to inspect and debug locally
+- persistent across restarts without needing a separate database server
+
+SQLite is a good fit for this assignment because it keeps the project lightweight while still letting the app store task data reliably between runs.
+
+## Database Location
+
+The app stores its data in a local SQLite database file named `tasks.db`.
+
+- The file is created automatically on first run.
+- It stays on disk between restarts, so the task data survives app restarts.
+
 ## Quick Start
 
 Install dependencies and run the server with one command:
 
 ```bash
-pip install -r requirements.txt && fastapi dev
+bash start.sh
 ```
 
 The API will be available at `http://localhost:8000` with interactive API documentation at `http://localhost:8000/docs`.
+
+## Database Implementation
+
+### DB Browser
+
+![Database schema image](image-2.png)
+![Database table image](image-3.png)
+
+### DB Browser Query
+
+![Screenshot of SQL query in DB Browser](image-1.png)
 
 ## OpenAPI Documentation
 
