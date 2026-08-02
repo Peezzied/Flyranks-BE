@@ -1,4 +1,5 @@
 from sqlmodel import Field, SQLModel, create_engine, Session, select
+from model import Item as TaskItem
 
 sqlite_url = f"sqlite:///tasks.db"
 
@@ -6,6 +7,7 @@ class Tasks(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     title: str
     done: bool = False
+
 
 engine = create_engine(sqlite_url, echo=True)
 
@@ -23,6 +25,34 @@ def populate_db():
         for task in TASKS:
             session.add(Tasks(title=task["title"], done=task["done"]))
         session.commit()
+
+def delete_task(id: int):
+    with Session(engine) as session:
+        task = session.get(Tasks, id)
+        
+        if not task:
+            return False
+        
+        session.delete(task)
+        session.commit()
+        
+        return True
+        
+def update_task(id: int, item: TaskItem):
+    with Session(engine) as session:
+        task = session.get(Tasks, id)
+        
+        if not task:
+            return None
+        
+        update_data = item.model_dump(exclude_unset=True)
+        task.sqlmodel_update(update_data)
+        
+        session.add(task)
+        session.commit()
+        session.refresh(task)
+        
+        return task
 
 def create_task(title: str):
     with Session(engine) as session:
