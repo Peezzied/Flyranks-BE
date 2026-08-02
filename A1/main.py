@@ -52,22 +52,22 @@ async def create_task(item: Item):
 
 @app.get("/tasks")
 async def tasks(search: str | None = None, done: bool | None = None):
-    filtered_tasks = TASKS
+    filtered_tasks = storage.get_tasks()
     
     if search is not None:
-        filtered_tasks = [i for i in filtered_tasks if search.lower() in i["title"].lower() ]
+        filtered_tasks = [i for i in filtered_tasks if search.lower() in i.title.lower() ]
         
     if done is not None:
-        filtered_tasks = [i for i in filtered_tasks if i["done"] == done ]
+        filtered_tasks = [i for i in filtered_tasks if i.done == done ]
     
-    return filtered_tasks   
+    return filtered_tasks
 
 
 @app.get("/tasks/{id}")
 async def tasks(id: int):
-    task = next((t for t in TASKS if t["id"] == id), None)
+    task = storage.get_task(id)
 
-    if task is None:
+    if not task:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"error": f"Task {id} not found"},
@@ -78,14 +78,14 @@ async def tasks(id: int):
 
 @app.put("/tasks/{id}")
 async def put_task(id: int, item: Item):
-    task = next((t for t in TASKS if t["id"] == id), None)
+    task = storage.get_task(id)
 
-    if task is None:
+    if not task:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND, content=f"Task {id} not found"
         )
 
-    if item.title is None and item.done is None:
+    if not item.title and not item.done:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content="request body must include title and/or done",

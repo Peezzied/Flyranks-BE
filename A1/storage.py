@@ -1,4 +1,4 @@
-from sqlmodel import Field, SQLModel, create_engine, Session
+from sqlmodel import Field, SQLModel, create_engine, Session, select
 
 sqlite_url = f"sqlite:///tasks.db"
 
@@ -23,3 +23,11 @@ def populate_db():
         for task in TASKS:
             session.add(Tasks(title=task["title"], done=task["done"]))
         session.commit()
+        
+def get_tasks():
+    with Session(engine) as session:
+        return session.exec(select(Tasks)).all()
+    
+def get_task(id: int):
+    with Session(engine) as session:    
+        return session.get(Tasks, id)
