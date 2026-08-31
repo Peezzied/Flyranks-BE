@@ -1,6 +1,7 @@
 import logging
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from auth_practice.supabase import supabase
 
@@ -8,16 +9,11 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/protected")
 
-def get_current_user(req: Request, BEARER = "Bearer "):
-    auth_header = req.headers.get("authorization")
+security = HTTPBearer()
 
-    if not auth_header or not auth_header.startswith(BEARER):
-        raise HTTPException(status_code=401, detail={"error": "Access token required."})
-    
-    token = auth_header[len(BEARER):]
-    
+def get_current_user(credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)]):
     try:
-        user = supabase.auth.get_user(token).user
+        user = supabase.auth.get_user(credentials.credentials).user
         return {
             "id": user.id,
             "email": user.email,
