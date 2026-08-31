@@ -1,8 +1,10 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 import logging
+from typing import Annotated
 
 from auth_practice.supabase import supabase
 from auth_practice.schemas import UserAuth
+from auth_practice.routers.protected import get_current_user
 
 logger = logging.getLogger(__name__)
 
@@ -36,3 +38,8 @@ def login(user_data: UserAuth):
         return response.session
     except:
         raise HTTPException(status_code=400, detail="Bad Request")
+    
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(current_user: Annotated[dict, Depends(get_current_user)]):
+    supabase.auth.sign_out()
+    

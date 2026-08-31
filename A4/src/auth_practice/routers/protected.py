@@ -1,5 +1,6 @@
 import logging
-from fastapi import APIRouter, Depends, Request, HTTPException
+from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from auth_practice.supabase import supabase
 
@@ -7,8 +8,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/protected")
 
-@router.get("/profile")
-def profile(req: Request, BEARER="Bearer "):
+def get_current_user(req: Request, BEARER = "Bearer "):
     auth_header = req.headers.get("authorization")
 
     if not auth_header or not auth_header.startswith(BEARER):
@@ -25,4 +25,12 @@ def profile(req: Request, BEARER="Bearer "):
         }
     except Exception as e:
         logger.error(str(e))
-        raise HTTPException(status_code=401, detail={ "error": "Invalid or expired token" })
+        raise HTTPException(status_code=401, detail={"error": "Invalid or expired token"})
+
+@router.get("/profile")
+def profile(current_user: Annotated[dict, Depends(get_current_user)]):
+    return current_user
+
+@router.get("/dashboard")
+def profile(current_user: Annotated[dict, Depends(get_current_user)]):
+    return current_user
