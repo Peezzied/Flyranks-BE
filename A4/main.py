@@ -1,6 +1,6 @@
 import logging
 from fastapi import FastAPI
-from auth_practice.routers import auth
+from auth_practice.routers import auth, public, protected
 
 app = FastAPI(title="A4 - Auth Practice")
 
@@ -10,3 +10,5 @@ logging.basicConfig(
 )
 
 app.include_router(auth.router)
+app.include_router(public.router)
+app.include_router(protected.router)
