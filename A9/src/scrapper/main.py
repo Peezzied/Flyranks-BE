@@ -1,4 +1,5 @@
 from .discover import discover
+from .extract import extract
 
 def main() -> None:
-    discover(3)
+    extract(discover(3))

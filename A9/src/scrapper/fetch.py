@@ -24,6 +24,7 @@ def fetch_cache(url: str) -> Path | None:
     req = requests.get(url.strip(), timeout=10, headers={
         "User-Agent": USER_AGENT
     })
+    req.encoding = "utf-8"
     
     if req.status_code != 200:
         return None
