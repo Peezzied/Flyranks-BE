@@ -1,4 +1,4 @@
-from .fetch import fetch
+from .discover import discover
 
 def main() -> None:
-    fetch(url="https://books.toscrape.com/catalogue/category/books/philosophy_7/index.html", seq=1)
+    discover(3)
