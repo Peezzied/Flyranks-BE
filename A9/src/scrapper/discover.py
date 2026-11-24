@@ -2,6 +2,7 @@ from .fetch import fetch_cache
 from bs4 import BeautifulSoup
 from .constants import BookURLs, RELATIVE_URL
 from urllib.parse import urljoin 
+from .reports import ReportManager
 
 __all__ = ["discover"]
 
@@ -16,7 +17,7 @@ def discover(catalogue_pages=3) -> BookURLs:
     first_catalogue_cache = fetch_cache(first_catalogue_url)
     if not first_catalogue_cache:
         return {}
-    
+
     page = first_catalogue_url, first_catalogue_cache.read_text(encoding="utf-8")
     discovered_books = {}
     
@@ -27,6 +28,7 @@ def discover(catalogue_pages=3) -> BookURLs:
     
         discovered_books[url] = books_parsed_url
         
+        ReportManager.raise_report(lambda x: setattr(x, "catalogue_pages_crawled", x.catalogue_pages_crawled + 1))
         if i == catalogue_pages-1:
             break
         

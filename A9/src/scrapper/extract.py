@@ -5,7 +5,8 @@ from .constants import BookURLs
 from datetime import datetime, timezone
 from itertools import chain
 from pathlib import Path
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
+from .reports import ReportManager
 
 OUTPUT_PATH = Path("output/book.json")
 OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -31,6 +32,12 @@ def extract(discovered: BookURLs):
                 continue
             
             page = fetch_cache(source)
+            
+            if not page:
+                continue
+            
+            ReportManager.raise_report(lambda x: setattr(x, "book_urls_discovered", x.book_urls_discovered + 1))
+            
             product = BeautifulSoup(page.read_text(encoding="utf-8"), "html.parser").select_one("article.product_page")
             
             record = {
@@ -47,7 +54,11 @@ def extract(discovered: BookURLs):
             record["price_gbp"] = float(record["price_text"][1:])
             
             unique_urls.add(source)
-            extracted.append(BookRecord(**record).model_dump())
+            try:
+                extracted.append(BookRecord(**record).model_dump())
+                ReportManager.raise_report(lambda x: setattr(x, "valid_records", x.valid_records + 1))
+            except ValidationError as e:
+                ReportManager.raise_report(lambda x: setattr(x, "invalid_records", x.invalid_records + 1))
     
     import json
     with OUTPUT_PATH.open("w", encoding="utf-8") as file:
